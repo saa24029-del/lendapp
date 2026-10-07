@@ -17,15 +17,6 @@
                 extend: {
                     fontFamily: {
                         sans: ['Inter', 'Noto Sans JP', 'sans-serif'],
-                    },
-                    colors: {
-                        brand: {
-                            50: '#f0fdf4',
-                            100: '#dcfce7',
-                            500: '#22c55e',
-                            600: '#16a34a',
-                            700: '#15803d',
-                        }
                     }
                 }
             }
@@ -33,7 +24,6 @@
     </script>
     <style>
         body { font-family: 'Inter', 'Noto Sans JP', sans-serif; }
-        [v-cloak] { display: none; }
         .glass-card {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
@@ -42,7 +32,6 @@
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
 
-    <!-- ヘッダーバー -->
     <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <div class="flex items-center space-x-3">
@@ -57,7 +46,7 @@
 
             <!-- ログイン中のユーザー情報 & ログアウト -->
             <div id="user-profile" class="hidden items-center space-x-3">
-                <img id="user-avatar" src="" alt="User" class="w-9 h-9 rounded-full border border-slate-300 object-cover">
+                <img id="user-avatar" src="https://placehold.co/100x100/6366f1/ffffff?text=U" alt="User" class="w-9 h-9 rounded-full border border-slate-300 object-cover">
                 <div class="hidden md:block text-right">
                     <div id="user-name" class="text-sm font-semibold text-slate-800">ログインユーザー</div>
                     <div id="user-email" class="text-xs text-slate-500">user@example.com</div>
@@ -70,40 +59,61 @@
         </div>
     </header>
 
-    <!-- 主コンテンツ領域 -->
+    <div id="toast-container" class="fixed top-20 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
         <!-- 未ログイン時表示画面 (Auth Guard) -->
-        <div id="auth-container" class="my-12 flex flex-col items-center justify-center">
+        <div id="auth-container" class="my-8 flex flex-col items-center justify-center">
             <div class="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 border border-slate-100 text-center space-y-6">
                 <div class="w-16 h-16 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center mx-auto text-2xl shadow-inner">
-                    <i class="fa-solid fa-[#fa2] fa-lock"></i>
+                    <i class="fa-solid fa-lock"></i>
                 </div>
                 <div>
                     <h2 class="text-2xl font-bold text-slate-900">ログインが必要です</h2>
                     <p class="text-sm text-slate-500 mt-2">
-                        学校の備品を登録・閲覧するには、Googleアカウントでログインしてください。
+                        学校の備品を登録・閲覧するにはログインしてください。
                     </p>
                 </div>
-                <button id="google-login-btn" class="w-full flex items-center justify-center gap-3 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 font-semibold py-3 px-4 rounded-xl shadow-sm transition-all hover:shadow-md active:scale-[0.99]">
-                    <svg class="w-5 h-5" viewBox="0 0 24 24">
-                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
-                    </svg>
-                    Googleでログイン
-                </button>
 
-                <!-- 設定カスタマイズメッセージ -->
-                <div id="config-warning" class="hidden text-xs text-amber-600 bg-amber-50 p-3 rounded-lg border border-amber-200 text-left">
-                    <i class="fa-solid fa-triangle-exclamation mr-1"></i>
-                    <strong>注意:</strong> Firebase設定をまだ貼り付けていない場合は、コード内の <code>firebaseConfig</code> をご自身のプロジェクト設定に更新してください。
+                <!-- ログインボタン群 -->
+                <div class="space-y-3">
+                    <button id="google-login-btn" class="w-full flex items-center justify-center gap-3 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 font-semibold py-3 px-4 rounded-xl shadow-sm transition-all hover:shadow-md active:scale-[0.99]">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24">
+                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                        </svg>
+                        Googleでログイン
+                    </button>
+
+                    <button id="anon-login-btn" class="w-full flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-2.5 px-4 rounded-xl transition-all text-xs">
+                        <i class="fa-solid fa-user-secret"></i>
+                        ゲスト/匿名アカウントで今すぐお試し
+                    </button>
+                </div>
+
+                <!-- エラーメッセージ表示枠 -->
+                <div id="auth-error-box" class="hidden text-xs text-red-600 bg-red-50 p-3 rounded-xl border border-red-200 text-left space-y-1">
+                    <p class="font-bold flex items-center gap-1">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <span id="auth-error-title">ログインエラーが発生しました</span>
+                    </p>
+                    <p id="auth-error-desc" class="break-all"></p>
+                </div>
+
+                <!-- 設定ボタン（画面上で簡単に入力可能） -->
+                <div class="pt-4 border-t border-slate-100">
+                    <button id="open-config-btn" class="text-xs text-indigo-600 hover:text-indigo-800 font-medium underline flex items-center justify-center gap-1 mx-auto">
+                        <i class="fa-solid fa-gear"></i>
+                        Firebase設定 (firebaseConfig) を設定する
+                    </button>
                 </div>
             </div>
         </div>
 
-        <!-- ログイン後メインコンテンツ (初期状態は非表示) -->
+        <!-- ログイン後メインコンテンツ -->
         <div id="app-content" class="hidden space-y-8">
 
             <!-- 統計カード -->
@@ -215,7 +225,7 @@
                             <i class="fa-solid fa-table-list text-indigo-600"></i>
                             貸出・返却記録一覧
                         </h2>
-                        <p class="text-xs text-slate-500 mt-0.5">Firestoreでリアルタイム同期中（ページ更新しても消えません）</p>
+                        <p class="text-xs text-slate-500 mt-0.5">Firestoreでリアルタイム同期中（ページ更新しても保持されます）</p>
                     </div>
 
                     <!-- フィルタ & 検索 -->
@@ -248,7 +258,6 @@
                             </tr>
                         </thead>
                         <tbody id="records-tbody" class="divide-y divide-slate-100 text-sm">
-                            <!-- JSで動的に追加 -->
                             <tr>
                                 <td colspan="6" class="py-8 text-center text-slate-400 text-sm">
                                     <i class="fa-solid fa-spinner fa-spin text-xl mb-2 block"></i>
@@ -263,10 +272,51 @@
         </div>
     </main>
 
+    <!-- Firebase設定モーダル -->
+    <div id="config-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white max-w-lg w-full rounded-2xl shadow-2xl border border-slate-100 p-6 space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 class="font-bold text-slate-900 flex items-center gap-2">
+                    <i class="fa-solid fa-sliders text-indigo-600"></i>
+                    Firebase Configuration 設定
+                </h3>
+                <button id="close-config-modal-btn" class="text-slate-400 hover:text-slate-600 text-sm">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <p class="text-xs text-slate-500 leading-relaxed">
+                Firebase Console からコピーした <code>const firebaseConfig = { ... };</code> 全体、または JSON オブジェクトをそのまま貼り付けて「保存」を押してください。
+            </p>
+            <textarea id="config-textarea" rows="7" placeholder='const firebaseConfig = {&#10;  apiKey: "AIzaSy...",&#10;  authDomain: "your-app.firebaseapp.com",&#10;  projectId: "your-app",&#10;  ...&#10;};' class="w-full p-3 bg-slate-50 border border-slate-300 rounded-xl text-xs font-mono focus:ring-2 focus:ring-indigo-500 focus:outline-none"></textarea>
+            
+            <div class="flex justify-end gap-2 pt-2">
+                <button id="clear-config-btn" class="px-4 py-2 text-xs font-semibold text-red-600 hover:bg-red-50 rounded-xl transition-colors">設定をクリア</button>
+                <button id="save-config-btn" class="px-5 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-md transition-all">保存してリロード</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- カスタム確認ダイアログ (alert/confirm不使用) -->
+    <div id="confirm-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white max-w-sm w-full rounded-2xl shadow-xl p-6 text-center space-y-4">
+            <div class="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto text-xl">
+                <i class="fa-solid fa-trash-can"></i>
+            </div>
+            <div>
+                <h4 class="font-bold text-slate-900 text-lg">削除の確認</h4>
+                <p id="confirm-modal-msg" class="text-xs text-slate-500 mt-1">この記録を削除してもよろしいですか？</p>
+            </div>
+            <div class="flex gap-2 justify-center pt-2">
+                <button id="confirm-cancel-btn" class="w-1/2 py-2.5 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors">キャンセル</button>
+                <button id="confirm-ok-btn" class="w-1/2 py-2.5 text-xs font-semibold text-white bg-red-600 hover:bg-red-700 rounded-xl transition-colors">削除する</button>
+            </div>
+        </div>
+    </div>
+
     <!-- フッター -->
     <footer class="bg-white border-t border-slate-200 py-6 mt-12 text-center text-xs text-slate-500">
         <div class="max-w-7xl mx-auto px-4">
-            学校備品貸出管理システム &copy; 2026 - Powered by Firebase & GitHub
+            学校備品貸出管理システム &copy; 2026 - Powered by Firebase
         </div>
     </footer>
 
@@ -277,6 +327,7 @@
             getAuth, 
             GoogleAuthProvider, 
             signInWithPopup, 
+            signInAnonymously,
             signOut, 
             onAuthStateChanged 
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -292,39 +343,59 @@
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // =========================================================================
-        // Firebase 設定情報 (プロジェクト固有の設定値に置き換えて使用できます)
+        // 1. Firebase設定情報の取得 (安全なパース処理)
         // =========================================================================
-        const firebaseConfig = typeof __firebase_config !== 'undefined' 
-            ? JSON.parse(__firebase_config)
-            : {
-                // デフォルトまたはダミー設定。Hostingデプロイ時はご自身のプロジェクト設定を貼り付けてください。
-                const firebaseConfig = {
-  　　　　　　   apiKey: "AIzaSyAzDzdc7AIOtr29-pq5O8CmPD4MwW_93nA",
-                authDomain: "tuisi-e0cc7.firebaseapp.com",
-                projectId: "tuisi-e0cc7",
-                storageBucket: "tuisi-e0cc7.firebasestorage.app",
-                messagingSenderId: "106011360140",
-                appId: "1:106011360140:web:3101223a2b43a4855234a9"
-};
-        // App ID の指定 (標準規約準拠)
+        function getFirebaseConfig() {
+            // A. カスタム保存設定がある場合
+            const savedConfig = localStorage.getItem('custom_firebase_config');
+            if (savedConfig) {
+                try {
+                    return JSON.parse(savedConfig);
+                } catch (e) {
+                    console.error("Saved config parse error", e);
+                }
+            }
+
+            // B. グローバル変数が注入されている場合
+            if (typeof __firebase_config !== 'undefined' && __firebase_config) {
+                try {
+                    return JSON.parse(__firebase_config);
+                } catch (e) {}
+            }
+
+            // C. 初期デフォルト（書き換え用）
+            return {
+                apiKey: "YOUR_API_KEY",
+                authDomain: "YOUR_PROJECT.firebaseapp.com",
+                projectId: "YOUR_PROJECT",
+                storageBucket: "YOUR_PROJECT.firebasestorage.app",
+                messagingSenderId: "123456789",
+                appId: "1:123456789:web:abcdef"
+            };
+        }
+
+        const activeFirebaseConfig = getFirebaseConfig();
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'school-equipment-app';
 
         // Firebase 初期化
-        let app, auth, db;
+        let app = null;
+        let auth = null;
+        let db = null;
+
         try {
-            app = initializeApp(firebaseConfig);
+            app = initializeApp(activeFirebaseConfig);
             auth = getAuth(app);
             db = getFirestore(app);
         } catch (e) {
             console.error("Firebase Initialization Error:", e);
         }
 
-        // アプリケーションの状態保持
         let currentUser = null;
         let lendingRecords = [];
         let unsubscribeSnapshot = null;
+        let pendingDeleteId = null;
 
-        // UI DOM要素の参照
+        // UI DOM要素
         const authContainer = document.getElementById('auth-container');
         const appContent = document.getElementById('app-content');
         const userProfile = document.getElementById('user-profile');
@@ -332,8 +403,13 @@
         const userName = document.getElementById('user-name');
         const userEmail = document.getElementById('user-email');
         const googleLoginBtn = document.getElementById('google-login-btn');
+        const anonLoginBtn = document.getElementById('anon-login-btn');
         const logoutBtn = document.getElementById('logout-btn');
-        const configWarning = document.getElementById('config-warning');
+
+        // エラー表示ボックス
+        const authErrorBox = document.getElementById('auth-error-box');
+        const authErrorTitle = document.getElementById('auth-error-title');
+        const authErrorDesc = document.getElementById('auth-error-desc');
 
         // フォーム要素
         const lendingForm = document.getElementById('lending-form');
@@ -354,7 +430,20 @@
         const statActive = document.getElementById('stat-active');
         const statReturned = document.getElementById('stat-returned');
 
-        // デフォルトの日付設定 (本日および1週間後)
+        // モーダル要素
+        const configModal = document.getElementById('config-modal');
+        const openConfigBtn = document.getElementById('open-config-btn');
+        const closeConfigModalBtn = document.getElementById('close-config-modal-btn');
+        const configTextarea = document.getElementById('config-textarea');
+        const saveConfigBtn = document.getElementById('save-config-btn');
+        const clearConfigBtn = document.getElementById('clear-config-btn');
+
+        const confirmModal = document.getElementById('confirm-modal');
+        const confirmModalMsg = document.getElementById('confirm-modal-msg');
+        const confirmCancelBtn = document.getElementById('confirm-cancel-btn');
+        const confirmOkBtn = document.getElementById('confirm-ok-btn');
+
+        // デフォルトの日付設定
         function setDefaultDates() {
             const today = new Date().toISOString().split('T')[0];
             const nextWeek = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
@@ -363,65 +452,156 @@
         }
         setDefaultDates();
 
-        // configの初期判定
-        if (firebaseConfig.apiKey === "YOUR_API_KEY") {
-            configWarning.classList.remove('hidden');
+        // トースト通知を表示するヘルパー
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            const bgClass = type === 'error' ? 'bg-red-600' : (type === 'success' ? 'bg-emerald-600' : 'bg-slate-800');
+            toast.className = `${bgClass} text-white text-xs px-4 py-3 rounded-xl shadow-lg transition-all duration-300 transform translate-y-2 opacity-0 pointer-events-auto flex items-center gap-2`;
+            toast.innerHTML = `<i class="fa-solid ${type === 'error' ? 'fa-circle-exclamation' : 'fa-circle-check'}"></i> <span>${message}</span>`;
+            
+            const container = document.getElementById('toast-container');
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
         }
+
+        // 設定モーダルの制御
+        openConfigBtn.addEventListener('click', () => {
+            configTextarea.value = localStorage.getItem('custom_firebase_config') || JSON.stringify(activeFirebaseConfig, null, 2);
+            configModal.classList.remove('hidden');
+        });
+
+        closeConfigModalBtn.addEventListener('click', () => configModal.classList.add('hidden'));
+
+        clearConfigBtn.addEventListener('click', () => {
+            localStorage.removeItem('custom_firebase_config');
+            showToast('設定を初期化しました。リロードします...', 'info');
+            setTimeout(() => location.reload(), 1000);
+        });
+
+        saveConfigBtn.addEventListener('click', () => {
+            const raw = configTextarea.value.trim();
+            try {
+                let parsed = null;
+                if (raw.startsWith('{')) {
+                    parsed = JSON.parse(raw);
+                } else {
+                    // JavaScriptオブジェクト表記の簡易抽出
+                    const match = raw.match(/\{[\s\S]*\}/);
+                    if (match) {
+                        const jsonString = match[0]
+                            .replace(/([a-zA-Z0-9_]+)\s*:/g, '"$1":')
+                            .replace(/'/g, '"')
+                            .replace(/,\s*}/g, '}');
+                        parsed = JSON.parse(jsonString);
+                    }
+                }
+
+                if (parsed && parsed.apiKey && parsed.projectId) {
+                    localStorage.setItem('custom_firebase_config', JSON.stringify(parsed));
+                    showToast('設定を保存しました。リロードします！', 'success');
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    throw new Error('apiKey または projectId が見つかりません。');
+                }
+            } catch (err) {
+                showToast('設定の保存に失敗しました: ' + err.message, 'error');
+            }
+        });
 
         // Google ログイン処理
         googleLoginBtn.addEventListener('click', async () => {
+            authErrorBox.classList.add('hidden');
+            if (!auth) {
+                showAuthError("Firebaseが初期化されていません", "設定画面から正しい firebaseConfig を入力してください。");
+                return;
+            }
+
             const provider = new GoogleAuthProvider();
             try {
                 await signInWithPopup(auth, provider);
             } catch (error) {
                 console.error("Login Error:", error);
-                alert("ログインに失敗しました: " + error.message);
+                if (error.code === 'auth/api-key-not-valid') {
+                    showAuthError("APIキーが無効です", "Firebase設定に有効な API Key が入力されていません。設定ボタンから確認してください。");
+                } else if (error.code === 'auth/unauthorized-domain') {
+                    showAuthError("承認されていないドメインです", "Firebase Console > Authentication > Settings > 承認済みドメイン に現在のドメインを追加してください。");
+                } else {
+                    showAuthError("ログインエラー (" + error.code + ")", error.message);
+                }
             }
         });
 
-        // ログアウト処理
+        // 匿名/テスト ログイン
+        anonLoginBtn.addEventListener('click', async () => {
+            authErrorBox.classList.add('hidden');
+            if (!auth) {
+                showAuthError("Firebase未初期化", "Firebaseの設定が必要です。");
+                return;
+            }
+            try {
+                await signInAnonymously(auth);
+            } catch (error) {
+                console.error("Anon Login Error:", error);
+                showAuthError("お試しログインエラー", error.message);
+            }
+        });
+
+        function showAuthError(title, desc) {
+            authErrorTitle.textContent = title;
+            authErrorDesc.textContent = desc;
+            authErrorBox.classList.remove('hidden');
+        }
+
+        // ログアウト
         logoutBtn.addEventListener('click', async () => {
             try {
                 if (unsubscribeSnapshot) unsubscribeSnapshot();
                 await signOut(auth);
+                showToast('ログアウトしました', 'info');
             } catch (error) {
                 console.error("Logout Error:", error);
             }
         });
 
         // 認証状態の監視
-        onAuthStateChanged(auth, (user) => {
-            currentUser = user;
-            if (user) {
-                // ログイン成功時
-                authContainer.classList.add('hidden');
-                appContent.classList.remove('hidden');
-                userProfile.classList.remove('hidden');
-                userProfile.classList.add('flex');
+        if (auth) {
+            onAuthStateChanged(auth, (user) => {
+                currentUser = user;
+                if (user) {
+                    authContainer.classList.add('hidden');
+                    appContent.classList.remove('hidden');
+                    userProfile.classList.remove('hidden');
+                    userProfile.classList.add('flex');
 
-                userAvatar.src = user.photoURL || 'https://placehold.co/100x100/6366f1/ffffff?text=U';
-                userName.textContent = user.displayName || 'ユーザー';
-                userEmail.textContent = user.email || '';
+                    userAvatar.src = user.photoURL || 'https://placehold.co/100x100/6366f1/ffffff?text=' + (user.isAnonymous ? 'A' : 'U');
+                    userName.textContent = user.displayName || (user.isAnonymous ? 'ゲストユーザー (テスト)' : 'ログインユーザー');
+                    userEmail.textContent = user.email || (user.isAnonymous ? '匿名認証モード' : '');
 
-                // データベースからのデータ読み込み開始
-                subscribeToLendingRecords();
-            } else {
-                // 未ログイン時
-                authContainer.classList.remove('hidden');
-                appContent.classList.add('hidden');
-                userProfile.classList.add('hidden');
-                userProfile.classList.remove('flex');
+                    subscribeToLendingRecords();
+                } else {
+                    authContainer.classList.remove('hidden');
+                    appContent.classList.add('hidden');
+                    userProfile.classList.add('hidden');
+                    userProfile.classList.remove('flex');
 
-                if (unsubscribeSnapshot) unsubscribeSnapshot();
-                lendingRecords = [];
-            }
-        });
+                    if (unsubscribeSnapshot) unsubscribeSnapshot();
+                    lendingRecords = [];
+                }
+            });
+        }
 
-        // Firestoreへのデータ登録 (5項目)
+        // Firestore データ登録
         lendingForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-
-            if (!currentUser) return;
+            if (!currentUser || !db) return;
 
             const name = equipmentNameInput.value.trim();
             const borrower = borrowerNameInput.value.trim();
@@ -430,7 +610,7 @@
             const status = returnStatusInput.value;
 
             if (!name || !borrower || !lendDate || !returnDate) {
-                alert("すべての必須項目を入力してください。");
+                showToast("すべての必須項目を入力してください", "error");
                 return;
             }
 
@@ -438,7 +618,6 @@
             submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> 保存中...`;
 
             try {
-                // 公共コレクションパスのルール適用
                 const publicCollectionPath = collection(db, 'artifacts', appId, 'public', 'data', 'equipment_lendings');
 
                 await addDoc(publicCollectionPath, {
@@ -449,27 +628,27 @@
                     status: status,
                     createdAt: serverTimestamp(),
                     createdBy: currentUser.uid,
-                    createdByName: currentUser.displayName || '不明'
+                    createdByName: currentUser.displayName || 'ユーザー'
                 });
 
-                // フォームの初期化
                 equipmentNameInput.value = '';
                 borrowerNameInput.value = '';
                 returnStatusInput.value = '未返却';
                 setDefaultDates();
+                showToast("貸出記録を登録しました！", "success");
 
             } catch (error) {
                 console.error("Firestore Add Error:", error);
-                alert("登録中にエラーが発生しました: " + error.message);
+                showToast("登録エラー: " + error.message, "error");
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = `<i class="fa-solid fa-paper-plane"></i> <span>登録する</span>`;
             }
         });
 
-        // Firestoreのリアルタイム更新購読
+        // リアルタイム購読
         function subscribeToLendingRecords() {
-            if (!currentUser) return;
+            if (!currentUser || !db) return;
 
             const publicCollectionPath = collection(db, 'artifacts', appId, 'public', 'data', 'equipment_lendings');
 
@@ -482,7 +661,6 @@
                     });
                 });
 
-                // 作成日時順（新しい順）または貸出日順にソート (メモリ内)
                 lendingRecords.sort((a, b) => new Date(b.lendDate) - new Date(a.lendDate));
 
                 renderRecords();
@@ -491,46 +669,58 @@
                 console.error("Firestore Subscribe Error:", error);
                 recordsTbody.innerHTML = `
                     <tr>
-                        <td colspan="6" class="py-6 text-center text-red-500">
-                            データの読み込み権限がないか、エラーが発生しました。
+                        <td colspan="6" class="py-6 text-center text-red-500 text-xs">
+                            データの読み込み権限がないか、エラーが発生しました (${error.message})
                         </td>
                     </tr>
                 `;
             });
         }
 
-        // ステータスの切り替え機能
+        // ステータス切替
         window.toggleStatus = async (docId, currentStatus) => {
             const newStatus = currentStatus === '未返却' ? '返却済み' : '未返却';
             try {
                 const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'equipment_lendings', docId);
                 await updateDoc(docRef, { status: newStatus });
+                showToast(`ステータスを「${newStatus}」に変更しました`, 'info');
             } catch (error) {
                 console.error("Update Status Error:", error);
-                alert("ステータス変更に失敗しました。");
+                showToast("ステータス変更に失敗しました", 'error');
             }
         };
 
-        // レコード削除機能
-        window.deleteRecord = async (docId, equipmentName) => {
-            const confirmed = window.confirm(`「${equipmentName}」の記録を削除してもよろしいですか？`);
-            if (!confirmed) return;
+        // レコード削除ダイアログ
+        window.requestDeleteRecord = (docId, equipmentName) => {
+            pendingDeleteId = docId;
+            confirmModalMsg.textContent = `「${equipmentName}」の貸出記録を削除します。よろしいですか？`;
+            confirmModal.classList.remove('hidden');
+        };
 
+        confirmCancelBtn.addEventListener('click', () => {
+            confirmModal.classList.add('hidden');
+            pendingDeleteId = null;
+        });
+
+        confirmOkBtn.addEventListener('click', async () => {
+            if (!pendingDeleteId) return;
             try {
-                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'equipment_lendings', docId);
+                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'equipment_lendings', pendingDeleteId);
                 await deleteDoc(docRef);
+                showToast("記録を削除しました", "success");
             } catch (error) {
                 console.error("Delete Error:", error);
-                alert("削除に失敗しました。");
+                showToast("削除に失敗しました", "error");
+            } finally {
+                confirmModal.classList.add('hidden');
+                pendingDeleteId = null;
             }
-        };
+        });
 
-        // 一覧画面の描画処理
         function renderRecords() {
             const searchKeyword = searchInput.value.toLowerCase();
             const filterValue = filterStatusSelect.value;
 
-            // フィルタリング
             const filtered = lendingRecords.filter(item => {
                 const matchesSearch = item.equipmentName?.toLowerCase().includes(searchKeyword) ||
                                       item.borrowerName?.toLowerCase().includes(searchKeyword);
@@ -574,10 +764,10 @@
                             </div>
                         </td>
                         <td class="py-3.5 px-4 text-slate-600 font-mono text-xs">
-                            ${item.lendDate}
+                            ${item.lendDate || '-'}
                         </td>
                         <td class="py-3.5 px-4 font-mono text-xs ${isOverdue ? 'text-red-600 font-bold' : 'text-slate-600'}">
-                            ${item.returnDate}
+                            ${item.returnDate || '-'}
                             ${isOverdue ? '<span class="text-[10px] block font-sans text-red-500 font-normal">期限切れ</span>' : ''}
                         </td>
                         <td class="py-3.5 px-4">
@@ -588,7 +778,7 @@
                             </button>
                         </td>
                         <td class="py-3.5 px-4 text-right">
-                            <button onclick="deleteRecord('${item.id}', '${escapeHtml(item.equipmentName)}')" 
+                            <button onclick="requestDeleteRecord('${item.id}', '${escapeHtml(item.equipmentName)}')" 
                                 class="text-slate-400 hover:text-red-600 p-1.5 rounded-lg hover:bg-slate-100 transition-colors"
                                 title="削除">
                                 <i class="fa-solid fa-trash-can"></i>
@@ -599,7 +789,6 @@
             }).join('');
         }
 
-        // 統計値の更新
         function updateStats() {
             statTotal.textContent = lendingRecords.length;
             const activeCount = lendingRecords.filter(r => r.status === '未返却').length;
@@ -609,11 +798,9 @@
             statReturned.textContent = returnedCount;
         }
 
-        // 検索・フィルタ イベントリスナー
         searchInput.addEventListener('input', renderRecords);
         filterStatusSelect.addEventListener('change', renderRecords);
 
-        // HTMLエスケープ関数
         function escapeHtml(str) {
             if (!str) return '';
             return str.replace(/[&<>"']/g, function(m) {
