@@ -342,6 +342,30 @@
             serverTimestamp 
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
+        // モーダル関連の要素を取得
+        const configModal = document.getElementById('config-modal');
+        const openConfigBtn = document.getElementById('open-config-btn');
+        const closeConfigModalBtn = document.getElementById('close-config-modal-btn');
+        const configTextarea = document.getElementById('config-textarea');
+        const saveConfigBtn = document.getElementById('save-config-btn');
+        const clearConfigBtn = document.getElementById('clear-config-btn');
+
+        // モーダル開閉イベント（初期化エラーが発生しても必ず動作するように先行登録）
+        if (openConfigBtn) {
+            openConfigBtn.addEventListener('click', () => {
+                const config = getFirebaseConfig();
+                const savedConfig = localStorage.getItem('custom_firebase_config');
+                configTextarea.value = savedConfig || JSON.stringify(config, null, 2);
+                configModal.classList.remove('hidden');
+            });
+        }
+
+        if (closeConfigModalBtn) {
+            closeConfigModalBtn.addEventListener('click', () => {
+                configModal.classList.add('hidden');
+            });
+        }
+
         // =========================================================================
         // 1. Firebase設定情報の取得 (安全なパース処理)
         // =========================================================================
@@ -430,14 +454,6 @@
         const statActive = document.getElementById('stat-active');
         const statReturned = document.getElementById('stat-returned');
 
-        // モーダル要素
-        const configModal = document.getElementById('config-modal');
-        const openConfigBtn = document.getElementById('open-config-btn');
-        const closeConfigModalBtn = document.getElementById('close-config-modal-btn');
-        const configTextarea = document.getElementById('config-textarea');
-        const saveConfigBtn = document.getElementById('save-config-btn');
-        const clearConfigBtn = document.getElementById('clear-config-btn');
-
         const confirmModal = document.getElementById('confirm-modal');
         const confirmModalMsg = document.getElementById('confirm-modal-msg');
         const confirmCancelBtn = document.getElementById('confirm-cancel-btn');
@@ -471,14 +487,6 @@
                 setTimeout(() => toast.remove(), 300);
             }, 3500);
         }
-
-        // 設定モーダルの制御
-        openConfigBtn.addEventListener('click', () => {
-            configTextarea.value = localStorage.getItem('custom_firebase_config') || JSON.stringify(activeFirebaseConfig, null, 2);
-            configModal.classList.remove('hidden');
-        });
-
-        closeConfigModalBtn.addEventListener('click', () => configModal.classList.add('hidden'));
 
         clearConfigBtn.addEventListener('click', () => {
             localStorage.removeItem('custom_firebase_config');
