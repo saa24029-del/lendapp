@@ -298,14 +298,14 @@
             ? JSON.parse(__firebase_config)
             : {
                 // デフォルトまたはダミー設定。Hostingデプロイ時はご自身のプロジェクト設定を貼り付けてください。
-                apiKey: "YOUR_API_KEY",
-                authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-                projectId: "YOUR_PROJECT_ID",
-                storageBucket: "YOUR_PROJECT_ID.firebasestorage.app",
-                messagingSenderId: "1234567890",
-                appId: "1:1234567890:web:abcdef123456"
-            };
-
+                const firebaseConfig = {
+  　　　　　　   apiKey: "AIzaSyAzDzdc7AIOtr29-pq5O8CmPD4MwW_93nA",
+                authDomain: "tuisi-e0cc7.firebaseapp.com",
+                projectId: "tuisi-e0cc7",
+                storageBucket: "tuisi-e0cc7.firebasestorage.app",
+                messagingSenderId: "106011360140",
+                appId: "1:106011360140:web:3101223a2b43a4855234a9"
+};
         // App ID の指定 (標準規約準拠)
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'school-equipment-app';
 
