@@ -289,6 +289,9 @@
             </p>
             <textarea id="config-textarea" rows="7" placeholder='const firebaseConfig = {&#10;  apiKey: "AIzaSy...",&#10;  authDomain: "your-app.firebaseapp.com",&#10;  projectId: "your-app",&#10;  ...&#10;};' class="w-full p-3 bg-slate-50 border border-slate-300 rounded-xl text-xs font-mono focus:ring-2 focus:ring-indigo-500 focus:outline-none"></textarea>
             
+            <!-- エラーメッセージ表示用領域の追加 -->
+            <div id="modal-config-error" class="hidden text-xs text-red-600 bg-red-50 p-2.5 rounded-lg border border-red-200"></div>
+
             <div class="flex justify-end gap-2 pt-2">
                 <button id="clear-config-btn" class="px-4 py-2 text-xs font-semibold text-red-600 hover:bg-red-50 rounded-xl transition-colors">設定をクリア</button>
                 <button id="save-config-btn" class="px-5 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-md transition-all">保存してリロード</button>
@@ -347,6 +350,7 @@
         const openConfigBtn = document.getElementById('open-config-btn');
         const closeConfigModalBtn = document.getElementById('close-config-modal-btn');
         const configTextarea = document.getElementById('config-textarea');
+        const modalConfigError = document.getElementById('modal-config-error');
         const saveConfigBtn = document.getElementById('save-config-btn');
         const clearConfigBtn = document.getElementById('clear-config-btn');
 
@@ -356,6 +360,7 @@
                 const config = getFirebaseConfig();
                 const savedConfig = localStorage.getItem('custom_firebase_config');
                 configTextarea.value = savedConfig || JSON.stringify(config, null, 2);
+                if (modalConfigError) modalConfigError.classList.add('hidden');
                 configModal.classList.remove('hidden');
             });
         }
@@ -496,31 +501,51 @@
 
         saveConfigBtn.addEventListener('click', () => {
             const raw = configTextarea.value.trim();
+            if (modalConfigError) modalConfigError.classList.add('hidden');
+
             try {
+                if (!raw) {
+                    throw new Error('設定が入力されていません。');
+                }
+
+                // 1. 行コメント (// ...) の削除
+                let cleanRaw = raw.replace(/\/\/.*/g, '');
+
+                // 2. 波かっこ { ... } の部分のみ抽出
+                const match = cleanRaw.match(/\{[\s\S]*\}/);
+                if (!match) {
+                    throw new Error('有効なオブジェクト形式（ { ... } ）が見つかりませんでした。');
+                }
+
+                let objectStr = match[0];
                 let parsed = null;
-                if (raw.startsWith('{')) {
-                    parsed = JSON.parse(raw);
-                } else {
-                    // JavaScriptオブジェクト表記の簡易抽出
-                    const match = raw.match(/\{[\s\S]*\}/);
-                    if (match) {
-                        const jsonString = match[0]
-                            .replace(/([a-zA-Z0-9_]+)\s*:/g, '"$1":')
-                            .replace(/'/g, '"')
-                            .replace(/,\s*}/g, '}');
-                        parsed = JSON.parse(jsonString);
-                    }
+
+                // 3. 安全な評価(Functionコンストラクタ)とフォールバック処理
+                try {
+                    parsed = new Function(`return ${objectStr};`)();
+                } catch (evalErr) {
+                    // JSON形式に整形してフォールバック
+                    const jsonString = objectStr
+                        .replace(/([a-zA-Z0-9_]+)\s*:/g, '"$1":')
+                        .replace(/'/g, '"')
+                        .replace(/,\s*([}\]])/g, '$1');
+                    parsed = JSON.parse(jsonString);
                 }
 
                 if (parsed && parsed.apiKey && parsed.projectId) {
                     localStorage.setItem('custom_firebase_config', JSON.stringify(parsed));
                     showToast('設定を保存しました。リロードします！', 'success');
-                    setTimeout(() => location.reload(), 1000);
+                    setTimeout(() => location.reload(), 800);
                 } else {
-                    throw new Error('apiKey または projectId が見つかりません。');
+                    throw new Error('apiKey または projectId が見つかりません。コピー内容を確認してください。');
                 }
             } catch (err) {
-                showToast('設定の保存に失敗しました: ' + err.message, 'error');
+                console.error("Config Save Error:", err);
+                if (modalConfigError) {
+                    modalConfigError.textContent = '保存エラー: ' + err.message;
+                    modalConfigError.classList.remove('hidden');
+                }
+                showToast('設定の保存に失敗しました', 'error');
             }
         });
 
